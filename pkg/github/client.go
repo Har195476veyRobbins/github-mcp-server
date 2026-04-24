@@ -24,6 +24,7 @@ type ClientOptions struct {
 // NewClientFromEnv creates a new GitHub client using environment variables.
 // It reads GITHUB_TOKEN (or GH_TOKEN) for authentication and optionally
 // GITHUB_API_URL for GitHub Enterprise support.
+// Note: GITHUB_TOKEN takes precedence over GH_TOKEN if both are set.
 func NewClientFromEnv() (*github.Client, error) {
 	token := os.Getenv("GITHUB_TOKEN")
 	if token == "" {
@@ -53,6 +54,8 @@ func NewClient(opts ClientOptions) (*github.Client, error) {
 	if opts.BaseURL != "" {
 		uploadURL := opts.UploadURL
 		if uploadURL == "" {
+			// Default the upload URL to the base URL if not explicitly provided.
+			// This is the typical setup for GitHub Enterprise instances.
 			uploadURL = opts.BaseURL
 		}
 		client, err := github.NewEnterpriseClient(opts.BaseURL, uploadURL, httpClient)
