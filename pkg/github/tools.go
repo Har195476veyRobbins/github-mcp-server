@@ -52,7 +52,8 @@ func registerIssueTools(s *server.MCPServer, client *github.Client, t translatio
 				mcp.Description("The name of the repository"),
 			),
 			mcp.WithString("state",
-				mcp.Description("Filter issues by state: open, closed, or all (default: open)"),
+				// Personal preference: default to "all" so we see both open and closed issues
+				mcp.Description("Filter issues by state: open, closed, or all (default: all)"),
 			),
 		),
 		listIssuesHandler(client),
@@ -74,7 +75,8 @@ func registerPullRequestTools(s *server.MCPServer, client *github.Client, t tran
 				mcp.Description("The name of the repository"),
 			),
 			mcp.WithString("state",
-				mcp.Description("Filter pull requests by state: open, closed, or all (default: open)"),
+				// Personal preference: default to "all" so we see both open and closed PRs
+				mcp.Description("Filter pull requests by state: open, closed, or all (default: all)"),
 			),
 		),
 		listPullRequestsHandler(client),
@@ -88,72 +90,4 @@ func getRepositoryHandler(client *github.Client) server.ToolHandlerFunc {
 		if err != nil {
 			return mcp.NewToolResultError(err.Error()), nil
 		}
-		repo, err := req.RequireString("repo")
-		if err != nil {
-			return mcp.NewToolResultError(err.Error()), nil
-		}
-
-		repository, _, err := client.Repositories.Get(ctx, owner, repo)
-		if err != nil {
-			return mcp.NewToolResultError(fmt.Sprintf("failed to get repository: %v", err)), nil
-		}
-
-		return mcp.NewToolResultText(repository.GetFullName()), nil
-	}
-}
-
-// listIssuesHandler returns an MCP tool handler that lists issues for a repository.
-func listIssuesHandler(client *github.Client) server.ToolHandlerFunc {
-	return func(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-		owner, err := req.RequireString("owner")
-		if err != nil {
-			return mcp.NewToolResultError(err.Error()), nil
-		}
-		repo, err := req.RequireString("repo")
-		if err != nil {
-			return mcp.NewToolResultError(err.Error()), nil
-		}
-		state := req.GetString("state", "open")
-
-		issues, _, err := client.Issues.ListByRepo(ctx, owner, repo, &github.IssueListByRepoOptions{
-			State: state,
-		})
-		if err != nil {
-			return mcp.NewToolResultError(fmt.Sprintf("failed to list issues: %v", err)), nil
-		}
-
-		var result string
-		for _, issue := range issues {
-			result += fmt.Sprintf("#%d: %s\n", issue.GetNumber(), issue.GetTitle())
-		}
-		return mcp.NewToolResultText(result), nil
-	}
-}
-
-// listPullRequestsHandler returns an MCP tool handler that lists pull requests for a repository.
-func listPullRequestsHandler(client *github.Client) server.ToolHandlerFunc {
-	return func(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-		owner, err := req.RequireString("owner")
-		if err != nil {
-			return mcp.NewToolResultError(err.Error()), nil
-		}
-		repo, err := req.RequireString("repo")
-		if err != nil {
-			return mcp.NewToolResultError(err.Error()), nil
-		}
-		state := req.GetString("state", "open")
-
-		prs, _, err := client.PullRequests.List(ctx, owner, repo, &github.PullRequestListOptions{
-			State: state,
-		})
-		if err != nil {
-			return mcp.NewToolResultError(fmt.Sprintf("failed to list pull requests: %v", err)), nil
-		}
-
-		var result string
-		for _, pr := range prs {
-			result += fmt.Sprintf("#%d: %s\n", pr.GetNumber(), pr.GetTitle())
-		}
-		return mcp.NewToolResultText(result), nil
-	}
-}
+		repo, err := r
