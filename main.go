@@ -30,9 +30,9 @@ func main() {
 
 func rootCmd() *cobra.Command {
 	var (
-		token   string
+		token     string
 		transport string
-		port    int
+		port      int
 	)
 
 	cmd := &cobra.Command{
@@ -78,6 +78,7 @@ func runServer(ctx context.Context, token, transport string, port int) error {
 	case "sse":
 		addr := fmt.Sprintf(":%d", port)
 		fmt.Fprintf(os.Stderr, "Starting GitHub MCP Server on SSE transport at %s\n", addr)
+		// Using localhost explicitly; change to 0.0.0.0 if you need external access.
 		sseServer := server.NewSSEServer(s, server.WithBaseURL(fmt.Sprintf("http://localhost%s", addr)))
 		return sseServer.Start(addr)
 	default:
