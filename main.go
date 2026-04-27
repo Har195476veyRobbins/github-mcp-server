@@ -46,7 +46,8 @@ func rootCmd() *cobra.Command {
 
 	cmd.Flags().StringVarP(&token, "token", "t", "", "GitHub personal access token (or set GITHUB_TOKEN env var)")
 	cmd.Flags().StringVar(&transport, "transport", "stdio", "Transport type: stdio or sse")
-	cmd.Flags().IntVar(&port, "port", 8080, "Port to listen on when using SSE transport")
+	// Changed default port from 8080 to 3000 to avoid conflicts with other local services.
+	cmd.Flags().IntVar(&port, "port", 3000, "Port to listen on when using SSE transport")
 
 	return cmd
 }
