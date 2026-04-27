@@ -25,13 +25,18 @@ type ClientOptions struct {
 // It reads GITHUB_TOKEN (or GH_TOKEN) for authentication and optionally
 // GITHUB_API_URL for GitHub Enterprise support.
 // Note: GITHUB_TOKEN takes precedence over GH_TOKEN if both are set.
+// Also checks the GITHUB_ENTERPRISE_TOKEN variable as a fallback for
+// enterprise environments where token naming conventions may differ.
 func NewClientFromEnv() (*github.Client, error) {
 	token := os.Getenv("GITHUB_TOKEN")
 	if token == "" {
 		token = os.Getenv("GH_TOKEN")
 	}
 	if token == "" {
-		return nil, fmt.Errorf("no GitHub token found: set GITHUB_TOKEN or GH_TOKEN environment variable")
+		token = os.Getenv("GITHUB_ENTERPRISE_TOKEN")
+	}
+	if token == "" {
+		return nil, fmt.Errorf("no GitHub token found: set GITHUB_TOKEN, GH_TOKEN, or GITHUB_ENTERPRISE_TOKEN environment variable")
 	}
 
 	opts := ClientOptions{
